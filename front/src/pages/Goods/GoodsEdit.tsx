@@ -179,8 +179,6 @@ class GoodsEdit extends React.Component<Props> {
             return;
         }
 
-        let goods;
-
         if (this.isNew) {
             this.goods = new Goods();
         }
@@ -285,7 +283,7 @@ class GoodsEdit extends React.Component<Props> {
                         </LocalizationProvider>
                     </Grid>
                     <Grid item xs={12}>
-                        <Button variant="contained" onClick={this.doSave.bind(this)}>
+                        <Button variant="text" onClick={this.doSave.bind(this)}>
                             Сохранить
                         </Button>
                     </Grid>

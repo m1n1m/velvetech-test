@@ -3,7 +3,7 @@ import Goods from '../common/dto/Goods';
 
 const cat1 = {id: '1', name: 'Алкоголь крепкий'};
 const cat17 = {id: '17', name: 'Напитки'};
-const mockGoods: Goods[] = [
+let mockGoods: Goods[] = [
     {id: '1', name: 'абсент', price: 1000.11, expirationDate: dayjs().toDate(), category: cat1},
     {id: '2', name: 'аквавит', price: 555.33, expirationDate: dayjs().toDate(), category: cat17},
     {id: '3', name: 'арак', price: 234.44, expirationDate: dayjs().toDate(), category: cat1},
@@ -25,7 +25,6 @@ export default {
         return mockGoods.find( g => g.id === id );
     },
 
-
     create(goods: Goods): Goods {
         goods.id = String(++maxId);
         mockGoods.push(goods);
@@ -43,6 +42,10 @@ export default {
         goodsOld.expirationDate = goods.expirationDate;
         goodsOld.category = goods.category;
         return goodsOld;
-    }
+    },
+
+    deleteById(id: string) {
+        mockGoods = mockGoods.filter(g => g.id !== id)
+    },
 }
 

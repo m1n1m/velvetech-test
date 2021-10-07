@@ -2,9 +2,7 @@ import React from 'react';
 import {CategoriesStoreInjected, injectCategoriesStore} from '@store/CategoriesStore';
 import {observer} from 'mobx-react';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
-import {Button, Grid, Stack} from '@mui/material';
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import {browserHistory} from '@src/index';
+import {Grid} from '@mui/material';
 import { withRouter } from 'react-router-dom';
 
 @injectCategoriesStore
@@ -17,26 +15,11 @@ class Categories extends React.Component<CategoriesStoreInjected> {
         this.props.categoriesStore.loadAll();
     }
 
-    createCategory() {
-        browserHistory.push("/goods-edit/new");
-    }
-
     render() {
         const categories = this.props.categoriesStore.categories;
         return (
             <React.Fragment>
                 <Grid container spacing={4} rowSpacing={4}>
-                    <Grid item xs={12}>
-                        <Stack spacing={2} direction="row">
-                            <Button
-                                variant="outlined"
-                                startIcon={<AddBoxIcon/>}
-                                onClick={ this.createCategory.bind(this) }
-                            >
-                                Создать
-                            </Button>
-                        </Stack>
-                    </Grid>
                     <Grid item xs={12}>
                         <div style={{ height: 700, width: '100%' }}>
                             <DataGrid

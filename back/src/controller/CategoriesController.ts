@@ -10,18 +10,6 @@ export async function create(context: Context) {
 }
 
 export function initRoutes(appRoutes: any[]) {
-    appRoutes.push(
-        {
-            path: "/api/v1/categories",
-            method: "get",
-            action: getAll
-        }
-    );
-    appRoutes.push(
-        {
-            path: "/api/v1/categories",
-            method: "post",
-            action: create
-        }
-    );
+    appRoutes.push({path: "/api/v1/categories", method: "get", action: getAll});
+    appRoutes.push({path: "/api/v1/categories", method: "post", action: create});
 }

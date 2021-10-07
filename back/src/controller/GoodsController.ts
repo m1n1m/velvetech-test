@@ -18,33 +18,15 @@ export async function update(context: Context) {
     context.body = await GoodsService.update(context.request.body);
 }
 
+export async function deleteById(context: Context) {
+    const { id } = context.params;
+    context.body = GoodsService.deleteById(id);
+}
+
 export function initRoutes(appRoutes: any[]) {
-    appRoutes.push(
-        {
-            path: "/api/v1/goods",
-            method: "get",
-            action: getAll
-        }
-    );
-    appRoutes.push(
-        {
-            path: "/api/v1/goods/:id",
-            method: "get",
-            action: getById
-        }
-    );
-    appRoutes.push(
-        {
-            path: "/api/v1/goods",
-            method: "post",
-            action: create
-        }
-    );
-    appRoutes.push(
-        {
-            path: "/api/v1/goods",
-            method: "put",
-            action: update
-        }
-    );
+    appRoutes.push({path: "/api/v1/goods", method: "get", action: getAll});
+    appRoutes.push({path: "/api/v1/goods/:id", method: "get", action: getById});
+    appRoutes.push({path: "/api/v1/goods", method: "post", action: create});
+    appRoutes.push({path: "/api/v1/goods", method: "put", action: update});
+    appRoutes.push({path: "/api/v1/goods/:id", method: "delete", action: deleteById});
 }
