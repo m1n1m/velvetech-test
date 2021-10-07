@@ -19,6 +19,7 @@ import {CategoriesStoreInjected, injectCategoriesStore} from '@store/CategoriesS
 import AdapterDayjs from '@mui/lab/AdapterDayjs';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { DatePicker } from '@mui/lab';
+import {browserHistory} from '@src/index';
 
 type Props = GoodsStoreInjected & CategoriesStoreInjected
 
@@ -177,6 +178,24 @@ class GoodsEdit extends React.Component<Props> {
         if (this.errors.size > 0) {
             return;
         }
+
+        let goods;
+
+        if (this.isNew) {
+            this.goods = new Goods();
+        }
+
+        this.goods.name = this.name;
+        this.goods.price = this.price;
+        this.goods.expirationDate = this.expirationDate;
+        this.goods.category = this.category;
+
+        if (this.isNew) {
+            GoodsService.create(this.goods);
+        } else {
+            GoodsService.update(this.goods);
+        }
+        browserHistory.goBack();
     }
 
     render() {

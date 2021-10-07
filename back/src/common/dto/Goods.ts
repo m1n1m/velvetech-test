@@ -1,4 +1,4 @@
-import Category from '@models/Category';
+import Category from './Category';
 
 export default class Goods {
     constructor(
