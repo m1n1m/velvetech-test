@@ -6,6 +6,7 @@ import {Button, Grid, Stack} from '@mui/material';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import {browserHistory} from '@src/index';
 import { withRouter } from 'react-router-dom';
+import Goods from '@models/Goods';
 
 @injectGoodsStore
 @observer
@@ -34,6 +35,10 @@ class GoodsList extends React.Component<GoodsStoreInjected> {
         browserHistory.push("/goods-edit/new");
     }
 
+    onRowClick(row: Goods) {
+        browserHistory.push(`/goods-edit/${row.id}`);
+    }
+
     render() {
         const goods = this.props.goodsStore.goods;
         return (
@@ -59,6 +64,7 @@ class GoodsList extends React.Component<GoodsStoreInjected> {
                             rowsPerPageOptions={[10]}
                             checkboxSelection
                             disableSelectionOnClick
+                            onRowClick={ this.onRowClick.bind(this) }
                         />
                     </div>
                 </Grid>

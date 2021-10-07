@@ -1,6 +1,6 @@
 import React from 'react';
-import categoriesStore, {CategoriesStoreInjected, injectCategoriesStore} from '@store/CategoriesStore';
-import {observer, Provider} from 'mobx-react';
+import {CategoriesStoreInjected, injectCategoriesStore} from '@store/CategoriesStore';
+import {observer} from 'mobx-react';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import {Button, Grid, Stack} from '@mui/material';
 import AddBoxIcon from '@mui/icons-material/AddBox';

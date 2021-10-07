@@ -9,6 +9,9 @@ export class GoodsStore {
     @observable
     private _goods: Goods[] = [];
 
+    @observable
+    private _editedGoods?: Goods | undefined;
+
     constructor() {
         makeObservable(this)
     }
