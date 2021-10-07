@@ -9,6 +9,8 @@ export class CategoriesStore {
     @observable
     private _categories: Category[] = [];
 
+    private isLoaded = false;
+
     constructor() {
         makeObservable(this)
     }
@@ -19,8 +21,12 @@ export class CategoriesStore {
     }
 
     @action
-    public loadAll() {
+    public loadAll(useCache = true) {
+        if (useCache && this.isLoaded) {
+            return;
+        }
         CategoriesService.findAll().then(resp => {
+            this.isLoaded = true;
             this._categories.length = 0;
             resp.data.forEach(d => {
                 this._categories.push(d);
