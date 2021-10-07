@@ -1,11 +1,14 @@
 import {action, makeObservable, observable} from 'mobx';
 import {IReactComponent} from 'mobx-react/dist/types/IReactComponent';
 import {inject, IWrappedComponent} from 'mobx-react';
+import SessionStoreHelper from '@utils/SessionStoreHelper';
+
+const authStore = new SessionStoreHelper('isAuthorized');
 
 export class RootStore {
 
     @observable
-    isAuthorized = false;
+    isAuthorized = authStore.read() || false;
 
     constructor() {
         makeObservable(this)
@@ -14,6 +17,7 @@ export class RootStore {
     @action
     public setIsAuthorized(isAuthorized: boolean) {
         this.isAuthorized = isAuthorized;
+        authStore.write(isAuthorized);
     }
 }
 

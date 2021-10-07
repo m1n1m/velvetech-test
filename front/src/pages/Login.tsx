@@ -1,12 +1,7 @@
 import React from 'react';
 import {injectRootStore, RootStoreInjected} from '@store/RootStore';
-import {
-    Button,
-    Container,
-    Grid,
-    TextField,
-} from '@material-ui/core';
 import {appStyles} from '../appStyles';
+import {Button, Container, Grid, TextField} from '@mui/material';
 
 @injectRootStore
 class Login extends React.Component<RootStoreInjected> {
@@ -38,7 +33,7 @@ class Login extends React.Component<RootStoreInjected> {
                         </Grid>
                         <Grid item xs={12}>
                             <Button
-                                color="secondary"
+                                color="primary"
                                 fullWidth
                                 variant="contained"
                                 onClick={this.handleSubmit.bind(this)}
