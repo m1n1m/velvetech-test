@@ -2,7 +2,6 @@ import React, {useEffect} from 'react';
 import {observer} from 'mobx-react';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import {Grid} from '@mui/material';
-import {withRouter} from 'react-router-dom';
 import {useStore} from '@store/stores';
 
 const Categories = () => {
@@ -34,4 +33,4 @@ const Categories = () => {
     );
 }
 
-export default withRouter(observer(Categories));
+export default observer(Categories);

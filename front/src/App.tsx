@@ -14,7 +14,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import {MenuDrawer} from '@components/MenuDrawer';
 import {mainMenuItems, mainRoute} from './mainMenu';
-import {Route, Switch, Redirect, withRouter} from 'react-router-dom';
+import {Route, Switch, Redirect} from 'react-router-dom';
 import {appRoutes} from '@src/routing';
 import {useStore} from '@store/stores';
 
@@ -101,4 +101,4 @@ const App = () => {
     );
 }
 
-export default withRouter(observer(App));
+export default observer(App);

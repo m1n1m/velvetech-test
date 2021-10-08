@@ -4,15 +4,15 @@ import {DataGrid, GridColDef, GridSelectionModel, GridValueGetterParams} from '@
 import {Button, Grid, Stack} from '@mui/material';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {browserHistory} from '@src/index';
-import {withRouter} from 'react-router-dom';
 import GoodsService from '@src/services/GoodsService';
 import dayjs from 'dayjs';
 import {useStore} from '@store/stores';
+import { useHistory } from 'react-router-dom'
 
 
 const GoodsList = () => {
 
+    const browserHistory = useHistory();
     let selectedRows: any;
     const columns: GridColDef[] = [
         {field: 'name', headerName: 'Наименование', width: 200},
@@ -106,4 +106,4 @@ const GoodsList = () => {
     );
 }
 
-export default withRouter(observer(GoodsList));
+export default observer(GoodsList);

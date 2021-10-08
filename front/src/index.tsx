@@ -8,7 +8,7 @@ import { Router, Route } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import {StoreProvider} from '@store/stores';
 
-export const browserHistory = createBrowserHistory();
+const browserHistory = createBrowserHistory();
 
 ReactDOM.render(
   <React.StrictMode>

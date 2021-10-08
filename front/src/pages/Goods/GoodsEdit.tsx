@@ -1,6 +1,6 @@
 import {observer} from 'mobx-react';
 import React, {useEffect, useState} from 'react';
-import {useRouteMatch} from "react-router-dom";
+import { useRouteMatch, useHistory } from "react-router-dom";
 import Goods from '@models/Goods';
 import GoodsService from '@src/services/GoodsService';
 import {
@@ -17,13 +17,10 @@ import dayjs from 'dayjs';
 import AdapterDayjs from '@mui/lab/AdapterDayjs';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {DatePicker} from '@mui/lab';
-import {browserHistory} from '@src/index';
 import {FormError} from '@models/FormError';
 import {useStore} from '@store/stores';
 
 const GoodsEdit = () => {
-
-    let goods: any;
 
     const [ name, setName ] = useState<string>('');
 
@@ -43,6 +40,8 @@ const GoodsEdit = () => {
 
     const { categoriesStore } = useStore();
 
+    const browserHistory = useHistory();
+
     useEffect(() => {
         loadCategories();
         if (!isNew) {
@@ -56,12 +55,11 @@ const GoodsEdit = () => {
 
     function loadEntity() {
         GoodsService.findById(goodsId).then(resp => {
-            goods = resp.data;
-            mapEntity();
+            mapEntity(resp.data);
         });
     }
 
-    function mapEntity() {
+    function mapEntity(goods?: Goods) {
         if (!goods) return;
         setName(goods.name);
         setPrice(goods.price);
@@ -155,10 +153,8 @@ const GoodsEdit = () => {
             return;
         }
 
-        if (this.isNew) {
-            goods = new Goods();
-        }
-
+        debugger;
+        const goods = new Goods();
         goods.name = name;
         goods.price = price;
         goods.expirationDate = expirationDate;
@@ -167,6 +163,7 @@ const GoodsEdit = () => {
         if (isNew) {
             GoodsService.create(goods);
         } else {
+            goods.id = goodsId;
             GoodsService.update(goods);
         }
         browserHistory.goBack();
@@ -188,7 +185,7 @@ const GoodsEdit = () => {
                             id="category"
                             value={category?.id || ''}
                             label="Категория"
-                            onChange={onChangeCategory.bind(this)}
+                            onChange={onChangeCategory}
                         >
                             {categoriesStore.categories.map(cat => (
                                 <MenuItem key={cat.id} value={cat.id}> {cat.name} </MenuItem>
@@ -206,7 +203,7 @@ const GoodsEdit = () => {
                             aria-describedby="component-error-text"
                             value={name}
                             fullWidth
-                            onChange={onChangeName.bind(this)}
+                            onChange={onChangeName}
                         />
                         <FormHelperText id="component-error-text">
                             {errors.has('name') && errors.get('name').description}
@@ -224,7 +221,7 @@ const GoodsEdit = () => {
                             aria-describedby="component-error-text"
                             value={price}
                             fullWidth
-                            onChange={onChangePrice.bind(this)}
+                            onChange={onChangePrice}
                         />
                         <FormHelperText id="component-error-text">
                             {errors.has('price') && errors.get('price').description}
