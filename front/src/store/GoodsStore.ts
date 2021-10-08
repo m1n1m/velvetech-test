@@ -1,6 +1,4 @@
 import {action, computed, makeObservable, observable, toJS} from 'mobx';
-import {IReactComponent} from 'mobx-react/dist/types/IReactComponent';
-import {inject, IWrappedComponent} from 'mobx-react';
 import Goods from '@models/Goods';
 import GoodsService from '@src/services/GoodsService';
 
@@ -9,8 +7,7 @@ export class GoodsStore {
     @observable
     private _goods: Goods[] = [];
 
-    @observable
-    private _editedGoods?: Goods | undefined;
+    private isLoaded = false;
 
     constructor() {
         makeObservable(this)
@@ -22,23 +19,18 @@ export class GoodsStore {
     }
 
     @action
-    public loadAll() {
+    public loadAll(useCache = true) {
+        if (useCache && this.isLoaded) {
+            return;
+        }
         GoodsService.findAll().then(resp => {
             this._goods.length = 0;
-            resp.data.forEach(d => {
-                this._goods.push(d);
-            });
+            if (resp.data) {
+                this.isLoaded = true;
+                resp.data.forEach(d => {
+                    this._goods.push(d);
+                });
+            }
         });
     }
 }
-
-export type GoodsStoreInjected = {
-    goodsStore?: GoodsStore;
-}
-
-export function injectGoodsStore<T extends IReactComponent>(target: T): T & IWrappedComponent<T> {
-    return inject('goodsStore')(target);
-}
-
-const goodsStore = new GoodsStore();
-export default goodsStore;

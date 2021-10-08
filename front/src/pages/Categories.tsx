@@ -1,41 +1,37 @@
-import React from 'react';
-import {CategoriesStoreInjected, injectCategoriesStore} from '@store/CategoriesStore';
+import React, {useEffect} from 'react';
 import {observer} from 'mobx-react';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import {Grid} from '@mui/material';
-import { withRouter } from 'react-router-dom';
+import {withRouter} from 'react-router-dom';
+import {useStore} from '@store/stores';
 
-@injectCategoriesStore
-@observer
-class Categories extends React.Component<CategoriesStoreInjected> {
+const Categories = () => {
 
-    private columns : GridColDef[] = [{ field: 'name', headerName: 'Наименование', width: 500 }];
+    const columns: GridColDef[] = [{field: 'name', headerName: 'Наименование', width: 500}];
+    const {categoriesStore, categoriesStore: {categories}} = useStore();
 
-    componentDidMount() {
-        this.props.categoriesStore.loadAll();
-    }
+    useEffect(() => {
+        categoriesStore.loadAll();
+    }, []);
 
-    render() {
-        const categories = this.props.categoriesStore.categories;
-        return (
-            <React.Fragment>
-                <Grid container spacing={4} rowSpacing={4}>
-                    <Grid item xs={12}>
-                        <div style={{ height: 700, width: '100%' }}>
-                            <DataGrid
-                                rows={categories}
-                                columns={this.columns}
-                                pageSize={10}
-                                rowsPerPageOptions={[10]}
-                                checkboxSelection
-                                disableSelectionOnClick
-                            />
-                        </div>
-                    </Grid>
+    return (
+        <React.Fragment>
+            <Grid container spacing={4} rowSpacing={4}>
+                <Grid item xs={12}>
+                    <div style={{height: 700, width: '100%'}}>
+                        <DataGrid
+                            rows={categories}
+                            columns={columns}
+                            pageSize={10}
+                            rowsPerPageOptions={[10]}
+                            checkboxSelection
+                            disableSelectionOnClick
+                        />
+                    </div>
                 </Grid>
-            </React.Fragment>
-        );
-    }
+            </Grid>
+        </React.Fragment>
+    );
 }
 
-export default withRouter(Categories);
+export default withRouter(observer(Categories));

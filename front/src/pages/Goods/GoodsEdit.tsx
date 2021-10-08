@@ -1,8 +1,7 @@
 import {observer} from 'mobx-react';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {useRouteMatch} from "react-router-dom";
 import Goods from '@models/Goods';
-import {action, makeObservable, observable} from 'mobx';
-import {GoodsStoreInjected, injectGoodsStore} from '@store/GoodsStore';
 import GoodsService from '@src/services/GoodsService';
 import {
     Button,
@@ -15,282 +14,250 @@ import {
 } from '@mui/material';
 import Category from '@models/Category';
 import dayjs from 'dayjs';
-import {CategoriesStoreInjected, injectCategoriesStore} from '@store/CategoriesStore';
 import AdapterDayjs from '@mui/lab/AdapterDayjs';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { DatePicker } from '@mui/lab';
+import {DatePicker} from '@mui/lab';
 import {browserHistory} from '@src/index';
+import {FormError} from '@models/FormError';
+import {useStore} from '@store/stores';
 
-type Props = GoodsStoreInjected & CategoriesStoreInjected
+const GoodsEdit = () => {
 
-class FormError {
-    constructor(
-        public description: string
-    ) {
-    }
-}
+    let goods: any;
 
-@injectGoodsStore
-@injectCategoriesStore
-@observer
-class GoodsEdit extends React.Component<Props> {
+    const [ name, setName ] = useState<string>('');
 
-    private goods?: Goods;
+    const [ price, setPrice ] = useState<number>(0);
 
-    @observable name?: string;
+    const [ expirationDate, setExpirationDate ] = useState<Date>(null);
 
-    @observable price?: number;
+    const [ category, setCategory ] = useState<Category>(null);
 
-    @observable expirationDate?: Date;
+    const [ errors, setErrors ] = useState(new Map<string, FormError>());
 
-    @observable category?: Category;
+    const routerMatch = useRouteMatch();
 
-    @observable errors: Map<string, FormError> = new Map<string, FormError>();
+    const goodsId = routerMatch.params.id;
 
-    private readonly isNew: boolean;
+    const isNew = goodsId === 'new';
 
-    constructor(props: Props) {
-        super(props);
-        makeObservable(this);
-        this.isNew = this.isNewEntity();
-    }
+    const { categoriesStore } = useStore();
 
-    componentDidMount() {
-        this.loadCategories();
-        if (!this.isNew) {
-            this.loadEntity();
+    useEffect(() => {
+        loadCategories();
+        if (!isNew) {
+            loadEntity();
         }
+    }, []);
+
+    function loadCategories() {
+        categoriesStore.loadAll();
     }
 
-    loadCategories() {
-        this.props.categoriesStore.loadAll();
-    }
-
-    isNewEntity(): boolean {
-        return this.getGoodsId() === 'new';
-    }
-
-    loadEntity() {
-        const goodsId = this.getGoodsId();
+    function loadEntity() {
         GoodsService.findById(goodsId).then(resp => {
-            this.goods = resp.data;
-            this.mapEntity();
+            goods = resp.data;
+            mapEntity();
         });
     }
 
-    @action
-    mapEntity() {
-        if (!this.goods) return;
-        this.name = this.goods.name;
-        this.price = this.goods.price;
-        this.expirationDate = this.goods.expirationDate;
-        this.category = this.goods.category;
+    function mapEntity() {
+        if (!goods) return;
+        setName(goods.name);
+        setPrice(goods.price);
+        setExpirationDate(goods.expirationDate);
+        setCategory(goods.category);
     }
 
-    getGoodsId(): null {
-        // @ts-ignore
-        return this.props.match.params.id;
+    function onChangeName(event: React.ChangeEvent<HTMLInputElement>) {
+        setName(event.target.value);
+        validateForm();
     }
 
-    @action
-    onChangeName(event: React.ChangeEvent<HTMLInputElement>) {
-        this.name = event.target.value;
-        this.validateForm();
-    }
-
-    @action
-    onChangePrice(event: React.ChangeEvent<HTMLInputElement>) {
+    function onChangePrice(event: React.ChangeEvent<HTMLInputElement>) {
         if (!event.target.value) {
-            this.price = 0;
+            setPrice(0);
         } else {
-            this.price = Number(event.target.value);
+            setPrice(Number(event.target.value));
         }
-        this.validateForm();
+        validateForm();
     }
 
-    @action
-    onChangeExpirationDate(value: any) {
+    function onChangeExpirationDate(value: any) {
         if (!value) {
-            this.expirationDate = undefined;
+            setExpirationDate(undefined);
         } else {
-            this.expirationDate = value.toDate();
+            setExpirationDate(value.toDate());
         }
-        this.validateForm();
+        validateForm();
     }
 
-    @action
-    onChangeCategory(event: React.ChangeEvent<HTMLInputElement>) {
+    function onChangeCategory(event: React.ChangeEvent<HTMLInputElement>) {
         if (!event.target.value) {
-            this.category = undefined;
+            setCategory(undefined);
         } else {
-            this.category = this.props.categoriesStore.categories.find(c => c.id === event.target.value);
+            setCategory(categoriesStore.categories.find(c => c.id === event.target.value));
         }
-        this.validateForm();
+        validateForm();
     }
 
-    @action
-    validateForm() {
-        this.errors.clear();
-        this.validateName();
-        this.validatePrice();
-        this.validateExpirationDate();
-        this.validateCategory();
+    function validateForm() {
+        setErrors(new Map<string, FormError>());
+        validateName();
+        validatePrice();
+        validateExpirationDate();
+        validateCategory();
     }
 
-    validateCategory() {
-        if (!this.category) {
-            this.errors.set('category', new FormError('Должно быть заполнено'))
+    function addError(field: string, description: string) {
+        // setErrors(  )
+    }
+
+    function validateCategory() {
+        if (!category) {
+            errors.set('category', new FormError('Должно быть заполнено'))
             return;
         }
     }
 
-    validateName() {
-        if (!this.name || this.name.length < 4) {
-            this.errors.set('name', new FormError('Длина не должна быть меньше 4'))
+    function validateName() {
+        if (!name || name.length < 4) {
+            errors.set('name', new FormError('Длина не должна быть меньше 4'))
             return;
         }
-        if (this.name.length > 40) {
-            this.errors.set('name', new FormError('Длина не должна быть больше 40'))
-            return;
-        }
-    }
-
-    validatePrice() {
-        if (!this.price || this.price <= 0) {
-            this.errors.set('price', new FormError('Цена должна быть больше 0'))
-        }
-    }
-
-    validateExpirationDate() {
-        if (!this.expirationDate) {
-            this.errors.set('expirationDate', new FormError('Дата не может быть пустой'))
-            return;
-        }
-
-        if (dayjs(this.expirationDate).startOf('day').isBefore(dayjs().startOf('day').toDate())) {
-            this.errors.set('expirationDate', new FormError('Дата не может быть раньше сегодня'))
+        if (name.length > 40) {
+            errors.set('name', new FormError('Длина не должна быть больше 40'))
             return;
         }
     }
 
-    doSave() {
-        this.validateForm();
-        if (this.errors.size > 0) {
+    function validatePrice() {
+        if (!price || price <= 0) {
+            errors.set('price', new FormError('Цена должна быть больше 0'))
+        }
+    }
+
+    function validateExpirationDate() {
+        if (!expirationDate) {
+            errors.set('expirationDate', new FormError('Дата не может быть пустой'))
+            return;
+        }
+
+        if (dayjs(expirationDate).startOf('day').isBefore(dayjs().startOf('day').toDate())) {
+            errors.set('expirationDate', new FormError('Дата не может быть раньше сегодня'))
+            return;
+        }
+    }
+
+    function doSave() {
+        validateForm();
+        if (errors.size > 0) {
             return;
         }
 
         if (this.isNew) {
-            this.goods = new Goods();
+            goods = new Goods();
         }
 
-        this.goods.name = this.name;
-        this.goods.price = this.price;
-        this.goods.expirationDate = this.expirationDate;
-        this.goods.category = this.category;
+        goods.name = name;
+        goods.price = price;
+        goods.expirationDate = expirationDate;
+        goods.category = category;
 
-        if (this.isNew) {
-            GoodsService.create(this.goods);
+        if (isNew) {
+            GoodsService.create(goods);
         } else {
-            GoodsService.update(this.goods);
+            GoodsService.update(goods);
         }
         browserHistory.goBack();
     }
 
-    render() {
-
-        return(
-                <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                        <Typography variant="h6" gutterBottom>
-                            { this.isNew ? <div>Создание товара</div> : <div>Редактирование товара</div>}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormControl error={ this.errors.has('category')} fullWidth>
-                            <InputLabel id="component-error"> Категория </InputLabel>
-                            <Select
-                                labelId="component-error"
-                                id="category"
-                                value={ this.category?.id || '' }
-                                label="Категория"
-                                onChange={ this.onChangeCategory.bind(this) }
-                            >
-                                {this.props.categoriesStore.categories.map(cat => (
-                                    <MenuItem key={cat.id} value={cat.id}> {cat.name} </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormControl error={ this.errors.has('name') } variant="standard" fullWidth>
-                            <InputLabel htmlFor="component-error"> Наименование </InputLabel>
-                            <Input
-                                required
-                                id="name"
-                                name="name"
-                                aria-describedby="component-error-text"
-                                value={ this.name }
-                                fullWidth
-                                onChange={ this.onChangeName.bind(this) }
-                            />
-                            <FormHelperText id="component-error-text">
-                                {this.errors.has('name') &&
-                                    this.errors.get('name').description
-                                }
-                            </FormHelperText>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormControl error={ this.errors.has('price') } variant="standard">
-                            <InputLabel htmlFor="component-error"> Цена </InputLabel>
-                            <Input
-                                required
-                                id="price"
-                                name="price"
-                                type="number"
-                                aria-describedby="component-error-text"
-                                value={ this.price }
-                                fullWidth
-                                onChange={ this.onChangePrice.bind(this) }
-                            />
-                            <FormHelperText id="component-error-text">
-                                {this.errors.has('price') &&
-                                    this.errors.get('price').description
-                                }
-                            </FormHelperText>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                                label="Срок годности"
-                                value={ this.expirationDate }
-                                onChange={(newValue) => {
-                                    this.onChangeExpirationDate(newValue);
-                                }}
-                                renderInput={(params) =>
-                                    <FormControl error={ this.errors.has('expirationDate') } variant="standard">
-                                        <TextField {...params} error={ this.errors.has('expirationDate') }/>
-                                        <FormHelperText id="component-error-text">
-                                            {this.errors.has('expirationDate') &&
-                                                this.errors.get('expirationDate').description
-                                            }
-                                        </FormHelperText>
-                                    </FormControl>
-                                }
-                            />
-                        </LocalizationProvider>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Button variant="text" onClick={this.doSave.bind(this)}>
-                            Сохранить
-                        </Button>
-                    </Grid>
+    return (
+        <Container component="main" maxWidth="sm" sx={{mb: 4}}>
+            <Grid container spacing={3}>
+                <Grid item xs={12}>
+                    <Typography variant="h6" gutterBottom>
+                        {isNew ? <div>Создание товара</div> : <div>Редактирование товара</div>}
+                    </Typography>
                 </Grid>
-                </Container>
-        );
-    }
+                <Grid item xs={12}>
+                    <FormControl error={errors.has('category')} fullWidth>
+                        <InputLabel id="component-error"> Категория </InputLabel>
+                        <Select
+                            labelId="component-error"
+                            id="category"
+                            value={category?.id || ''}
+                            label="Категория"
+                            onChange={onChangeCategory.bind(this)}
+                        >
+                            {categoriesStore.categories.map(cat => (
+                                <MenuItem key={cat.id} value={cat.id}> {cat.name} </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <FormControl error={errors.has('name')} variant="standard" fullWidth>
+                        <InputLabel htmlFor="component-error"> Наименование </InputLabel>
+                        <Input
+                            required
+                            id="name"
+                            name="name"
+                            aria-describedby="component-error-text"
+                            value={name}
+                            fullWidth
+                            onChange={onChangeName.bind(this)}
+                        />
+                        <FormHelperText id="component-error-text">
+                            {errors.has('name') && errors.get('name').description}
+                        </FormHelperText>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <FormControl error={errors.has('price')} variant="standard">
+                        <InputLabel htmlFor="component-error"> Цена </InputLabel>
+                        <Input
+                            required
+                            id="price"
+                            name="price"
+                            type="number"
+                            aria-describedby="component-error-text"
+                            value={price}
+                            fullWidth
+                            onChange={onChangePrice.bind(this)}
+                        />
+                        <FormHelperText id="component-error-text">
+                            {errors.has('price') && errors.get('price').description}
+                        </FormHelperText>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label="Срок годности"
+                            value={expirationDate}
+                            onChange={(newValue) => {
+                                onChangeExpirationDate(newValue);
+                            }}
+                            renderInput={(params) =>
+                                <FormControl error={errors.has('expirationDate')} variant="standard">
+                                    <TextField {...params} error={errors.has('expirationDate')}/>
+                                    <FormHelperText id="component-error-text">
+                                        {errors.has('expirationDate') && errors.get('expirationDate').description}
+                                    </FormHelperText>
+                                </FormControl>
+                            }
+                        />
+                    </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12}>
+                    <Button variant="text" onClick={doSave}>
+                        Сохранить
+                    </Button>
+                </Grid>
+            </Grid>
+        </Container>
+    );
 }
 
-export default GoodsEdit;
+export default observer(GoodsEdit);

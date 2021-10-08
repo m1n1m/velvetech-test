@@ -1,17 +1,22 @@
 import {action, makeObservable, observable} from 'mobx';
-import {IReactComponent} from 'mobx-react/dist/types/IReactComponent';
-import {inject, IWrappedComponent} from 'mobx-react';
 import SessionStoreHelper from '@utils/SessionStoreHelper';
+import {GoodsStore} from '@store/GoodsStore';
+import {CategoriesStore} from '@store/CategoriesStore';
 
 const authStore = new SessionStoreHelper('isAuthorized');
 
 export class RootStore {
 
     @observable
-    isAuthorized = authStore.read() || false;
+    isAuthorized: boolean = authStore.read() || false;
+
+    goodsStore = new GoodsStore();
+    categoriesStore = new CategoriesStore();
+    rootStore: RootStore
 
     constructor() {
         makeObservable(this)
+        this.rootStore = this;
     }
 
     @action
@@ -19,14 +24,6 @@ export class RootStore {
         this.isAuthorized = isAuthorized;
         authStore.write(isAuthorized);
     }
-}
-
-export type RootStoreInjected = {
-    rootStore?: RootStore;
-}
-
-export function injectRootStore<T extends IReactComponent>(target: T): T & IWrappedComponent<T> {
-    return inject('rootStore')(target);
 }
 
 const rootStore = new RootStore();

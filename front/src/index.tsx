@@ -3,26 +3,20 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 // import * as serviceWorker from './serviceWorker';
-import {Provider} from 'mobx-react';
 import rootStore from '@store/RootStore';
 import { Router, Route } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
-import categoriesStore from '@store/CategoriesStore';
-import goodsStore from '@store/GoodsStore';
+import {StoreProvider} from '@store/stores';
 
 export const browserHistory = createBrowserHistory();
 
 ReactDOM.render(
   <React.StrictMode>
-      <Provider
-          rootStore={rootStore}
-          categoriesStore={categoriesStore}
-          goodsStore={goodsStore}
-      >
+      <StoreProvider value={rootStore}>
           <Router history={browserHistory}>
               <Route component={App} />
           </Router>
-      </Provider>
+      </StoreProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
