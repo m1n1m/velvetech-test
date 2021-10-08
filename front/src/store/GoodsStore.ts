@@ -19,7 +19,7 @@ export class GoodsStore {
     }
 
     @action
-    public loadAll(useCache = true) {
+    public loadAll(useCache = false) {
         if (useCache && this.isLoaded) {
             return;
         }

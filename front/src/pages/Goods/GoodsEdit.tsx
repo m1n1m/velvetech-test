@@ -17,7 +17,6 @@ import dayjs from 'dayjs';
 import AdapterDayjs from '@mui/lab/AdapterDayjs';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {DatePicker} from '@mui/lab';
-import {FormError} from '@models/FormError';
 import {useStore} from '@store/stores';
 
 const GoodsEdit = () => {
@@ -30,7 +29,7 @@ const GoodsEdit = () => {
 
     const [ category, setCategory ] = useState<Category>(null);
 
-    const [ errors, setErrors ] = useState(new Map<string, FormError>());
+    const [ errors, setErrors ] = useState(new Map<string, string>());
 
     const routerMatch = useRouteMatch();
 
@@ -48,6 +47,10 @@ const GoodsEdit = () => {
             loadEntity();
         }
     }, []);
+
+    useEffect(() => {
+        validateForm()
+    }, [name, price, expirationDate, category]);
 
     function loadCategories() {
         categoriesStore.loadAll();
@@ -69,7 +72,6 @@ const GoodsEdit = () => {
 
     function onChangeName(event: React.ChangeEvent<HTMLInputElement>) {
         setName(event.target.value);
-        validateForm();
     }
 
     function onChangePrice(event: React.ChangeEvent<HTMLInputElement>) {
@@ -78,7 +80,6 @@ const GoodsEdit = () => {
         } else {
             setPrice(Number(event.target.value));
         }
-        validateForm();
     }
 
     function onChangeExpirationDate(value: any) {
@@ -87,7 +88,6 @@ const GoodsEdit = () => {
         } else {
             setExpirationDate(value.toDate());
         }
-        validateForm();
     }
 
     function onChangeCategory(event: React.ChangeEvent<HTMLInputElement>) {
@@ -96,60 +96,60 @@ const GoodsEdit = () => {
         } else {
             setCategory(categoriesStore.categories.find(c => c.id === event.target.value));
         }
-        validateForm();
     }
 
     function validateForm() {
-        debugger;
-        setErrors(new Map<string, FormError>());
+        setErrors(new Map<string, string>());
         validateName();
         validatePrice();
         validateExpirationDate();
         validateCategory();
     }
 
-    function addError(field: string, description: string) {
-        // setErrors(  )
-    }
-
     function validateCategory() {
         if (!category) {
-            errors.set('category', new FormError('Должно быть заполнено'))
+            addError('category', 'Должно быть заполнено');
             return;
         }
+    }
+
+    function addError(field: string, description: string) {
+        const newErrors = new Map(errors);
+        newErrors.set(field, description);
+        setErrors(newErrors);
     }
 
     function validateName() {
         if (!name || name.length < 4) {
-            errors.set('name', new FormError('Длина не должна быть меньше 4'))
+            addError('name', 'Длина не должна быть меньше 4');
             return;
         }
         if (name.length > 40) {
-            errors.set('name', new FormError('Длина не должна быть больше 40'))
+            addError('name', 'Длина не должна быть больше 40');
             return;
         }
     }
 
     function validatePrice() {
         if (!price || price <= 0) {
-            errors.set('price', new FormError('Цена должна быть больше 0'))
+            addError('price', 'Цена должна быть больше 0')
         }
     }
 
     function validateExpirationDate() {
         if (!expirationDate) {
-            errors.set('expirationDate', new FormError('Дата не может быть пустой'))
+            addError('expirationDate', 'Дата не может быть пустой')
             return;
         }
 
         if (dayjs(expirationDate).startOf('day').isBefore(dayjs().startOf('day').toDate())) {
-            errors.set('expirationDate', new FormError('Дата не может быть раньше сегодня'))
+            addError('expirationDate', 'Дата не может быть раньше сегодня')
             return;
         }
     }
 
     function doSave() {
-        validateForm();
+
         if (errors.size > 0) {
             return;
         }
@@ -207,7 +207,7 @@ const GoodsEdit = () => {
                             onChange={onChangeName}
                         />
                         <FormHelperText id="component-error-text">
-                            {errors.has('name') && errors.get('name').description}
+                            {errors.has('name') && errors.get('name')}
                         </FormHelperText>
                     </FormControl>
                 </Grid>
@@ -225,7 +225,7 @@ const GoodsEdit = () => {
                             onChange={onChangePrice}
                         />
                         <FormHelperText id="component-error-text">
-                            {errors.has('price') && errors.get('price').description}
+                            {errors.has('price') && errors.get('price')}
                         </FormHelperText>
                     </FormControl>
                 </Grid>
@@ -241,7 +241,7 @@ const GoodsEdit = () => {
                                 <FormControl error={errors.has('expirationDate')} variant="standard">
                                     <TextField {...params} error={errors.has('expirationDate')}/>
                                     <FormHelperText id="component-error-text">
-                                        {errors.has('expirationDate') && errors.get('expirationDate').description}
+                                        {errors.has('expirationDate') && errors.get('expirationDate')}
                                     </FormHelperText>
                                 </FormControl>
                             }

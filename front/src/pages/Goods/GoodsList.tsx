@@ -40,7 +40,7 @@ const GoodsList = () => {
     const {goodsStore, goodsStore: {goods}} = useStore();
 
     useEffect(() => {
-        goodsStore.loadAll(false);
+        goodsStore.loadAll();
     }, []);
 
     function createGoods() {
