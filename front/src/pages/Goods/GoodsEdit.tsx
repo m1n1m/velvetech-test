@@ -100,6 +100,7 @@ const GoodsEdit = () => {
     }
 
     function validateForm() {
+        debugger;
         setErrors(new Map<string, FormError>());
         validateName();
         validatePrice();
