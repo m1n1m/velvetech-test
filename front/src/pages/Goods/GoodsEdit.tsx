@@ -154,7 +154,6 @@ const GoodsEdit = () => {
             return;
         }
 
-        debugger;
         const goods = new Goods();
         goods.name = name;
         goods.price = price;
